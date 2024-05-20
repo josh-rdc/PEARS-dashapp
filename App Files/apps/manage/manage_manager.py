@@ -323,27 +323,27 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
             if not title: # If title is blank, not title = True
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, Project Name cannot be empty!'
+                alert_text = 'Check inputs! Project Name cannot be empty!'
             elif not userid:
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, Project In-Charge cannot be empty!'
+                alert_text = 'Check inputs! Project In-Charge cannot be empty!'
             elif not amount:
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, Project Amount cannot be empty!'
+                alert_text = 'Check inputs! Project Amount cannot be empty!'
             elif not sched_start:
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, Start Date cannot be empty!'
+                alert_text = 'Check inputs! Start Date cannot be empty!'
             elif not sched_end:
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, End Date cannot be empty!'
+                alert_text = 'Check inputs! End Date cannot be empty!'
             elif sched_start >= sched_end :
                 alert_open = True
                 alert_color = 'danger'
-                alert_text = 'Check inputs, Start Date of the project must be before the End Date!'
+                alert_text = 'Check inputs! Start Date of the project must be before the End Date!'
             else: # all inputs are valid
                 
                 #parse or decode the 'mode' portion of the search queries
@@ -357,8 +357,8 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
                     # Save to db
                     sql = '''
                         INSERT INTO projects (projectID, projectName, userid, amount, 
-                        scope, location, client, start_date, end_date, delete_pj_ind)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        scope, location, client, start_date, end_date, delete_pj_ind, modifydate)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                     '''
 
                     scope = " " if not scope else scope
@@ -371,6 +371,7 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
 
                     # If this is successful, we want the successmodal to show
                     modal_open = True
+
 
                 elif create_mode == 'edit':
                     # 1. We need to get the projectID to update

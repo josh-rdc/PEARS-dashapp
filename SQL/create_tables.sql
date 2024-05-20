@@ -6,15 +6,16 @@ CREATE TABLE Users (
     CONSTRAINT unique_userID UNIQUE (userID)
 );
 
-CREATE TABLE UserProject (
+CREATE TABLE UserProjectBudget (
     userID int NOT NULL,
     projectID int NOT NULL,
-    pj_access_ind bool DEFAULT true NOT NULL,
+    budgetID varchar(128),
     modifydate timestamp without time zone DEFAULT now() NOT NULL,
     PRIMARY KEY (userID, projectID)
 );
 
 CREATE TABLE ProjectExpense (
+    userID int NOT NULL,
     projectID int NOT NULL,
     expenseID int NOT NULL,
     PRIMARY KEY (projectID, expenseID)
@@ -23,31 +24,24 @@ CREATE TABLE ProjectExpense (
 CREATE TABLE Expense (
     expenseID varchar(128),
     itemID int NOT NULL,
-    quantity decimal(10, 2) ,
+    quantity decimal(10, 2) NOT NULL,
     unit varchar(128) ,
-    price int8 NOT NULL
+    price decimal(15, 2) NOT NULL
 );
 
 CREATE TABLE Projects (
-    projectID int PRIMARY KEY,
+    projectID int NOT NULL,
     projectName varchar(256) NOT NULL,
     userID int NOT Null,
     scope varchar(256),
     location varchar(256),
-    client varchar(256) NOT NULL,
-    amount NUMERIC(15, 2) NOT NULL,
+    client varchar(256),
+    amount decimal(15, 2) NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
     delete_pj_ind bool DEFAULT true NOT NULL ,
-    CONSTRAINT unique_projectID UNIQUE (projectID)
-);
-
-CREATE TABLE UserBudget (
-    userID int NOT NULL,
-    budgetID varchar(128) NOT NULL,
-    bud_access_ind bool DEFAULT false NOT NULL,
     modifydate timestamp without time zone DEFAULT now() NOT NULL,
-    PRIMARY KEY (userID, budgetID)
+    CONSTRAINT unique_projectID UNIQUE (projectID)
 );
 
 CREATE TABLE Budget (
@@ -55,7 +49,7 @@ CREATE TABLE Budget (
     itemID int NOT NULL,
     quantity decimal(10, 2) ,
     unit varchar(128) ,
-    quotation int8 NOT NULL
+    quotation decimal(15, 2) NOT NULL
 );
 
 CREATE TABLE Items (
