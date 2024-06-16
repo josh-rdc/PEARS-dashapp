@@ -25,10 +25,12 @@ General Interface
 1. Access the "MANAGE" tab from the navigation bar.
 2. Select the project to manage from the project form.
 3. TM accounts can edit data for all projects, while PIC accounts can only edit their assigned projects.
+
 Budget Mode
 1. Toggle to “Budget” mode.
 2. Enter budget data directly into the table or upload a CSV file.
 3. Based on needed action, table contents could be cleared or saved to the project budget.
+
 Expense Mode
 1. Toggle to “Expense” mode.
 2. Enter expenses into the table or upload a CSV file.
