@@ -5,9 +5,9 @@ Overview Page
 Project Profile: Displays project name, contract amount, total budgeted amount, scope, location, client, start and end date.
 
 Commercial Management Overview:
-•	Target Profit: Shows the difference between the total contract amount and the budgeted amount, providing an estimate of the project’s profit margin.
-•	Remaining Budget: Indicates the total budgeted amount minus the current total running expenses, helping forecast the final profit.
-•	Main Items: Lists the top five items with the highest allotted budget and their current running total expenses for effective monitoring.
+1. Target Profit: Shows the difference between the total contract amount and the budgeted amount, providing an estimate of the project’s profit margin.
+2. Remaining Budget: Indicates the total budgeted amount minus the current total running expenses, helping forecast the final profit.
+3. Main Items: Lists the top five items with the highest allotted budget and their current running total expenses for effective monitoring.
 
 Monthly Project Expense: Compares planned expenses (total budget divided by the number of months) with actual expenses on a monthly basis.
 
