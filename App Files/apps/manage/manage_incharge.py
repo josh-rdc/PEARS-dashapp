@@ -13,6 +13,7 @@ import base64
 import io
 import uuid
 import pandas as pd
+import calendar
 
 # Let us import the app object in case we need to define
 # callbacks here
@@ -33,7 +34,7 @@ layout = html.Div(
             ],
         ),
 
-        html.H2('Add Project Data'), # Page Header
+        html.H2('Manage Project Data', ), # Page Header
         html.Hr(),
         dbc.Alert(id='manageproject_alert', is_open=False), # For feedback purposes
         dbc.Form(
@@ -45,7 +46,10 @@ layout = html.Div(
                     dbc.Col(
                         dcc.Dropdown(
                             id='project_dropdown',
-                            placeholder='Select Project'
+                            placeholder='Select Project',
+                            style={
+                                'margin-right': '25px', 'width': '100%'
+                            }
                         ),
                         width=3
                     ),
@@ -59,14 +63,40 @@ layout = html.Div(
                                 'padding-top': '8px'  
                             }
                         ),
-                        width="auto"  # Auto width to fit the switch
+                        width=1 
                     ),
                     dbc.Col(
                         html.Div(id="budget_expense_output"),
-                        width="auto"  # Auto width to fit the output
+                        width= 2,
+                        style={
+                                'margin-left': '25px',
+                            }
                     ),
+                    dbc.Col(
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dcc.Dropdown(
+                                        id='expense_year_dropdown',
+                                        placeholder='Select Expense Year',
+                                        style={'display': 'none'},
+                                    ),
+                                    width= 6
+                                ),
+                                dbc.Col(
+                                    dcc.Dropdown(
+                                        id='expense_month_dropdown',
+                                        placeholder='Select Expense Month',
+                                        style={'display': 'none'},
+                                    ),
+                                    width= 6
+                                ),
+                            ],
+                            justify="start",  # Align the columns to the start (left)
+                        )
+                    )
                 ],
-                className='mb-2'  # add 1em bottom margin
+                className='mb-3'  
                 ),   
                 dbc.Row(
                 [   
@@ -79,12 +109,13 @@ layout = html.Div(
                                 html.A('Click to Select')
                             ]),
                             style={
-                                'width': '80%', 'height': '45px', 'lineHeight': '45px',
+                                'width': '100%', 'height': '45px', 'lineHeight': '45px',
                                 'borderWidth': '1px', 'borderStyle': 'dashed',
-                                'borderRadius': '5px', 'textAlign': 'center', 'margin': '1px'
-                            },
+                                'borderRadius': '5px', 'textAlign': 'center', 'margin-right': '25px'
+                            }, 
                             # multiple=True
                         ),
+                        width = 3
                     ),
                     dbc.Col(
                     [
@@ -191,9 +222,9 @@ layout = html.Div(
                         columns=[
                             {'id': 'item_id', 'name': 'Item ID'},
                             {'id': 'item_name', 'name': 'Item'},
-                            {'id': 'item_qty', 'name': 'Quantity'},
+                            {'id': 'item_qty', 'name': 'Quantity', 'type': 'numeric', 'format': {'specifier': ',.2f'}},
                             {'id': 'item_unit', 'name': 'Unit'},
-                            {'id': 'item_price', 'name': 'Unit Price'},
+                            {'id': 'item_price', 'name': 'Unit Price', 'type': 'numeric', 'format': {'specifier': ',.2f'}},
                             {'id': 'item_desc', 'name': 'Description/Remarks'}
                         ],
                         data=[{'item_id': '', 'item_name': '', 'item_qty': '', 'item_unit': '', 'item_price': '', 'item_desc': ''}] * 5,
@@ -205,9 +236,9 @@ layout = html.Div(
                         style_cell_conditional=[
                             {'if': {'column_id': 'item_id'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px', 'textAlign': 'center'},
                             {'if': {'column_id': 'item_name'}, 'minWidth': '150px', 'width': '150px', 'maxWidth': '150px'},
-                            {'if': {'column_id': 'item_qty'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px'},
+                            {'if': {'column_id': 'item_qty'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px', 'textAlign': 'right'},
                             {'if': {'column_id': 'item_unit'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px'},
-                            {'if': {'column_id': 'item_price'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px'},
+                            {'if': {'column_id': 'item_price'}, 'minWidth': '50px', 'width': '50px', 'maxWidth': '50px', 'textAlign': 'right'},
                             {'if': {'column_id': 'item_desc'}, 'whiteSpace': 'normal', 'overflowWrap': 'break-word', 'minWidth': 
                              '200px', 'width': '200px', 'maxWidth': '200px'}
                         ],
@@ -223,7 +254,14 @@ layout = html.Div(
                         
                     ),
                 ),
-            ]
+                dbc.Modal([
+                    dbc.ModalHeader("User Access Error"),
+                    dbc.ModalBody("You do not have access to modify the budget and expenses of this project."),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close_error_modal", className="ml-auto")
+                    ),
+                ], id="error_modal", is_open=False)
+                        ]
         ),
     ]
 )
@@ -252,7 +290,7 @@ def projectprofile_dropdown(pathname):
         cols = ['projectid', 'projectname']
 
         df = db.querydatafromdatabase(sql, values, cols)        
-        project_list = df.to_dict('records')
+        project_list = df.sort_values('projectid').to_dict('records')
 
         # Format the options for the dropdown
         options = [{'label': f"{row['projectid']} - {row['projectname']}", 'value': row['projectid']} for row in project_list]
@@ -264,6 +302,61 @@ def projectprofile_dropdown(pathname):
         # this callback does not execute
         raise PreventUpdate
     
+# Check if user has access to the project
+@app.callback(
+        
+    Output('error_modal', 'is_open'),
+    Output('project_dropdown', 'value'),
+
+    Input('project_dropdown', 'value'),
+    Input('close_error_modal', 'n_clicks'),
+
+    State('url', 'pathname'),
+    State('currentuserid', 'data'),
+    State('currentrole', 'data'),
+    prevent_initial_call=True
+)
+def check_user_access(project_id, closebtn, pathname, userid, userrole):
+    ctx = dash.callback_context
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    # print("project dropdown eventid: ", eventid)
+
+    if eventid == 'project_dropdown':
+        
+        # print ('userrole: ', userrole)
+        if userrole == 'manager':
+            return False, project_id 
+        
+
+        elif userrole == 'pj_ic':
+
+            # Query the database to check if the current user has access to the project
+            sql = '''
+                SELECT userid
+                FROM projects
+                WHERE projectid = %s
+                '''
+            values = [project_id]
+            cols = ['userid']
+
+            project_userid = db.querydatafromdatabase(sql, values, cols)
+            # print("project_userid: ", project_userid)
+            budget_userid = project_userid.iloc[0].item() 
+            # print("budget_userid: ", budget_userid)
+            # print("userid: ", userid)
+
+            if userid != budget_userid:
+                # print("Check 1")
+                # Show error modal if user does not have access
+                return True, None  
+    
+    # Close the modal
+    elif eventid == 'close_error_modal' and closebtn:
+        # print("Check 2")
+        return False, project_id
+
+    raise PreventUpdate
+        
 
 # Datatable - values based on switch and uploaded file
 # Get budget data from the database
@@ -282,22 +375,18 @@ def get_budget_data(budget_id):
 def get_blank_table():
     return [{'item_id': '', 'item_name': '', 'item_qty': '', 'item_unit': '', 'item_price': '', 'item_desc': ''}] * 5
 
-def get_columns():
-    columns = [
-                {'id': 'item_id', 'name': 'Item ID'},
-                {'id': 'item_name', 'name': 'Item'},
-                {'id': 'item_qty', 'name': 'Quantity'},
-                {'id': 'item_unit', 'name': 'Unit'},
-                {'id': 'item_price', 'name': 'Unit Price'},
-                {'id': 'item_desc', 'name': 'Description/Remarks'}
-            ]
-    return columns
-
+# Toggle and Datatable
 @app.callback(
     Output("budget_expense_output", "children"),
     Output("budget_expense_switch", "label"),
     Output('budget_expense_datatable', 'data', allow_duplicate=True),
     Output('budget_expense_datatable', 'dropdown'),
+
+    # Expense Year and Month dropdown
+    Output('expense_year_dropdown', 'options'),
+    Output('expense_month_dropdown', 'options'),
+    Output('expense_year_dropdown', 'style'),
+    Output('expense_month_dropdown', 'style'),
 
     Input("budget_expense_switch", "value"),
     Input('datatable-upload', 'contents'),
@@ -312,7 +401,7 @@ def update_datatable(switch_value, contents, project_value, filename):
 
     # Toggle switch 
     if triggered_input == "budget_expense_switch":
-        if switch_value and project_value: # Budget Mode
+        if switch_value: # Budget Mode and project_value???
 
             budget_id = get_budgetID(project_value)
             budget_data = get_budget_data(budget_id).to_dict('records')
@@ -320,7 +409,7 @@ def update_datatable(switch_value, contents, project_value, filename):
             if not budget_data:
                 budget_data = get_blank_table()
 
-            return " ", "    Budget", budget_data, {}
+            return " ", "    Budget", budget_data, {}, [], [], {'display': 'none'}, {'display': 'none'}
         
         else: # Expense Mode
             budget_id = get_budgetID(project_value)
@@ -332,7 +421,12 @@ def update_datatable(switch_value, contents, project_value, filename):
 
             dropdown = {'item_name': {'options': item_name_options}}
             # print('dropdown: ', dropdown)
-            return " ", "    Expense", get_blank_table(), dropdown
+
+            # Populate year and month dropdowns
+            year_options = [{'label': str(year), 'value': year} for year in range(2000, 2051)]
+            month_options = [{'label': calendar.month_name[month], 'value': month} for month in range(1, 13)]
+
+            return " ", "    Expense", get_blank_table(), dropdown, year_options, month_options, {'display': 'block'}, {'display': 'block'}
     
     # Upload 
     elif triggered_input == "datatable-upload" and contents:
@@ -348,7 +442,17 @@ def update_datatable(switch_value, contents, project_value, filename):
             print(e)
             return dash.no_update
         
-        return dash.no_update, dash.no_update, df.to_dict('records'), {}
+        if switch_value and project_value: 
+        
+            return dash.no_update, dash.no_update, df.to_dict('records'), {}, [], [], {'display': 'none'}, {'display': 'none'}
+        
+        else:
+
+            # Populate year and month dropdowns
+            year_options = [{'label': str(year), 'value': year} for year in range(2000, 2051)]
+            month_options = [{'label': calendar.month_name[month], 'value': month} for month in range(1, 13)]
+            
+            return dash.no_update, dash.no_update, df.to_dict('records'), {}, year_options, month_options, {'display': 'block'}, {'display': 'block'}
 
     return dash.no_update, dash.no_update, get_blank_table(), {}
 
@@ -476,16 +580,23 @@ def get_next_expense_id(budget_id):
 
         # For buttons, the property n_clicks
         Input('save_changes-confirm', 'n_clicks'),
+        Input('proceed_save-modal', "n_clicks"),
         Input('expense_error-modal-button', "n_clicks"),
 
         # proceed_save-modal
         # Table Data
         State('project_dropdown', 'value'),
         State("budget_expense_switch", "value"),
-        State('budget_expense_datatable', 'data')
+        State('budget_expense_datatable', 'data'),
+        State('currentuserid', 'data'),
+
+        # Expense month and year
+        State('expense_year_dropdown', 'value'),  
+        State('expense_month_dropdown', 'value'),  
 )
 
-def savechanges_to_db(submitbtn, expensebtn, project_value, mode, data):
+def savechanges_to_db(submitbtn, budgetbtn, expensebtn, project_value, mode, data, 
+                      currentuser, expense_year, expense_month):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -495,6 +606,15 @@ def savechanges_to_db(submitbtn, expensebtn, project_value, mode, data):
 
                 # print("project_value:", project_value)
                 budgetID = get_budgetID(project_value)
+
+                # Delete existing budget data in the database
+                sql_delete = '''
+                DELETE FROM budget WHERE budgetID = %s
+                '''
+                values_delete = [budgetID]
+                db.modifydatabase(sql_delete, values_delete)
+
+                # Save current table data to budget database 
 
                 for row in data:
 
@@ -525,6 +645,19 @@ def savechanges_to_db(submitbtn, expensebtn, project_value, mode, data):
                     ]
 
                     db.modifydatabase(sql, values)
+
+                # Save record on userprojectbudget database for time modified
+                timestamp = datetime.now()
+                sql = '''
+                        INSERT INTO userprojectbudget (userid, projectid, budgetid, modifydate)
+                        VALUES (%s, %s, %s, %s)
+                    '''
+
+                values = values = [
+                    currentuser, project_value, budgetID, timestamp
+                ]
+
+                db.modifydatabase(sql, values)
 
                 # If this is successful, show model
                 return True, False, None
@@ -595,38 +728,29 @@ def savechanges_to_db(submitbtn, expensebtn, project_value, mode, data):
 
                     db.modifydatabase(sql, values)
 
+                # Save record on projectexpense database
+                timestamp = datetime.now()
+                expense_month_int = int(expense_month)
+
+                sql = '''
+                        INSERT INTO projectexpense (userid, projectid, expenseid, expenseyear, expensemonth, modifydate)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    '''
+
+                values = [
+                    currentuser, project_value, expenseID, expense_year, expense_month_int, timestamp
+                ]
+
+                db.modifydatabase(sql, values)
+
                 return True, False, None
             
         elif eventid == "expense_error-modal-button" and expensebtn:
             
             return False, False, None
+        
+        elif eventid == "proceed_save-modal" and budgetbtn:
+            
+            return False, False, None
 
     raise PreventUpdate
-
-# # Clear Modal
-# @app.callback(
-#     Output("confirm-clear_all-modal", "is_open"),
-#     Output("expense_error-modal", "is_open", allow_duplicate=True),
-
-#     Input("clear-all-button", "n_clicks"),
-#     Input("clear_all-confirm", "n_clicks"),
-#     Input("close-clear_all-modal", "n_clicks"),
-#     Input('expense_error-modal-button', "n_clicks"),
-
-#     State("confirm-clear_all-modal", "is_open"),
-#     State("expense_error-modal", "is_open")
-# )
-
-# def toggle_modal(clear_button, clear_confirm, close_button, expense_close_button, is_clear_open, is_expense_open):
-#     ctx = dash.callback_context
-#     if ctx.triggered:
-#         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-#         print("button id:", button_id)
-#         if button_id == "clear-all-button":
-#             return True, False
-#         elif button_id == "clear_all-confirm" or button_id == "close-clear_all-modal":
-#             return False, False
-#         elif button_id == "expense_error-modal-button":
-#             return False, True
-        
-#     return is_clear_open, is_expense_open

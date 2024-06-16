@@ -33,7 +33,7 @@ layout = html.Div(
                 # Form fields here
                 dbc.Row(
                     [
-                        dbc.Label("Project Name", width=1),
+                        dbc.Label("Project Name", width=1, style={'font-family': 'Arial Black'}),
                         dbc.Col(
                             dbc.Input(
                                 type='text', 
@@ -173,31 +173,28 @@ layout = html.Div(
                 dbc.ModalFooter(
                     dbc.Button(
                         "Proceed",
-                        href='/manage_manager?mode=add' # Clicking this would lead to a change of pages
+                        href='/project_overview',
+                        id='add_proceed_successmodal', # Clicking this would lead to a change of pages
                     )
                 )
             ],
             centered=True,
-            id='project_successmodal',
+            id='add_project_successmodal',
             backdrop='static' # Dialog box does not go away if you click at the background
         ),
     ]
 )
 
-# Dropdown for project in-charge
+# Dropdown options
 @app.callback(
     [
-        # The property of the dropdown we wish to update is the
-        # 'options' property
         Output('project_incharge_dropdown', 'options'),
-
+        Output('project_removerecord_div', 'style')
     ],
-    [
-        Input('url', 'pathname')
-    ],
+    [Input('url', 'pathname')],
+    [State('url', 'search')]
 )
-
-def projectprofile_dropdown(pathname):
+def projectprofile_dropdown(pathname, url_search):
     if pathname == '/manage_manager':
         sql = """
         SELECT userid
@@ -208,18 +205,77 @@ def projectprofile_dropdown(pathname):
         cols = ['userid']
 
         df = db.querydatafromdatabase(sql, values, cols)        
-        project_incharge = df.to_dict('records')
+        project_incharge = df.sort_values('projectid').to_dict('records')
 
         # Format the options for the dropdown
         options = [{'label': row['userid'], 'value': row['userid']} for row in project_incharge]
 
-        return [options]
+        # Parse or decode the 'mode' portion of the search queries
+        parsed = urlparse(url_search)
+        create_mode = parse_qs(parsed.query).get('mode', ['add'])[0]
+
+        removediv_style = {'display': 'none'} if create_mode == 'add' else None
+
+        return [options, removediv_style]
         
     else:
         # If the pathname is not the desired,
         # this callback does not execute
         raise PreventUpdate
     
+# Dropdown 
+@app.callback(
+    [
+        Output('project_title', 'value'),
+        Output('project_incharge_dropdown', 'value'),
+
+        # Project information in edit mode
+        Output('project_amount', 'value'),
+        Output('project_scope', 'value'),
+        Output('project_location', 'value'),
+        Output('project_client', 'value'),
+        Output('project_schedule', 'start_date'),
+        Output('project_schedule', 'end_date'),
+        Output('project_add_button', 'children')
+    ],
+    [Input('url', 'search')]
+)
+def populate_fields(url_search):
+    parsed = urlparse(url_search)
+    create_mode = parse_qs(parsed.query).get('mode', ['add'])[0]
+    project_id = parse_qs(parsed.query).get('id', [None])[0]
+    
+    if create_mode == 'edit' and project_id:
+        sql = """
+        SELECT projectName, userid, amount, scope, location, client, start_date, end_date
+        FROM projects
+        WHERE projectID = %s
+        """
+        values = [project_id]
+        cols = ['projectName', 'userid', 'amount', 'scope', 'location', 'client', 'start_date', 'end_date']
+        
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        if not df.empty:
+            project_data = df.iloc[0]
+            return (
+                project_data['projectName'],
+                project_data['userid'],
+                project_data['amount'],
+                project_data['scope'],
+                project_data['location'],
+                project_data['client'],
+                project_data['start_date'],
+                project_data['end_date'],
+                'Update Project'
+            )
+    
+    # Default values for 'add' mode
+    return (
+        '', '', '', '', '', '', None, None,
+        'Add Project'
+    )
+
 # Error for wrong amount format
 @app.callback(
     Output("project_amount_div", "children"),
@@ -264,19 +320,21 @@ def generate_project_id():
     # print("id: ", id)
     return new_project_id
 
+# Save Project Profile
 @app.callback(
     [
         # dbc.Alert Properties
         Output('manageproject_alert', 'color'),
         Output('manageproject_alert', 'children'),
         Output('manageproject_alert', 'is_open'),
-
+    
         # dbc.Modal Properties
-        Output('project_successmodal', 'is_open')
+        Output('add_project_successmodal', 'is_open')
     ],
     [
         # For buttons, the property n_clicks
-        Input('project_add_button', 'n_clicks')
+        Input('project_add_button', 'n_clicks'),
+        Input('add_proceed_successmodal', 'n_clicks'),
     ],
     [
         # The values of the fields are States
@@ -300,7 +358,7 @@ def generate_project_id():
     ]
 )
 
-def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location, client,
+def projectdetails_saveprofile(submitbtn, proceedbtn, title, userid, amount, scope, location, client,
                                sched_start, sched_end, url_search, remove_ind):
     
     ctx = dash.callback_context
@@ -374,6 +432,7 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
 
 
                 elif create_mode == 'edit':
+                    print('cr')
                     # 1. We need to get the projectID to update
                     project_id = parse_qs(parsed.query)['id'][0]
 
@@ -382,7 +441,6 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
                     sql = '''
                         UPDATE projects
                         SET
-                            
                             projectName = %s,
                             userid = %s,
                             amount = %s,
@@ -390,7 +448,7 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
                             location = %s,
                             client = %s,
                             start_date = %s,
-                            end_date = %s
+                            end_date = %s,
                             delete_pj_ind = %s
                         WHERE
                             projectID = %s
@@ -403,62 +461,16 @@ def projectdetails_saveprofile(submitbtn, title, userid, amount, scope, location
                     # If this is successful, we want the successmodal to show
                     modal_open = True
 
+
             return [alert_color, alert_text, alert_open, modal_open]
+        
+        if eventid == 'add_proceed_successmodal' and proceedbtn:   
+
+            return ['', '', False, False]
 
         else: # Callback was not triggered by desired triggers
             raise PreventUpdate
 
     else:
         raise PreventUpdate
-
-
-# # Load Project Details for Edit
-# @app.callback(
-#     [
-#         # Our goal is to update values of these fields
-#         Output('movieprofile_title', 'value'),
-#         Output('movieprofile_genre', 'value'),
-#         Output('movieprofile_releasedate', 'date'),
-#     ],
-#     [
-#         # Our trigger is if the dcc.Store object changes its value
-#         # This is how you check a change in value for a dcc.Store
-#         Input('movieprofile_toload', 'modified_timestamp')
-#     ],
-#     [
-#         # We need the following to proceed
-# 	    # Note that the value of the dcc.Store object is in
-# 	    # the ‘data’ property, and not in the ‘modified_timestamp’ property
-#         State('movieprofile_toload', 'data'),
-#         State('url', 'search'),
-#     ]
-# )
-
-# def movieprofile_loadprofile(timestamp, toload, search):
-#     if toload: # check if toload = 1
-        
-#         # Get movieid value from the search parameters
-#         parsed = urlparse(search)
-#         movieid = parse_qs(parsed.query)['id'][0]
-
-#         # Query from db
-#         sql = """
-#             SELECT movie_name, genre_id, movie_release_date
-#             FROM movies
-#             WHERE movie_id = %s
-#         """
-#         values = [movieid]
-#         col = ['moviename', 'genreid', 'releasedate']
-
-#         df = db.querydatafromdatabase(sql, values, col)
-
-#         moviename = df['moviename'][0]
-#         # Our dropdown list has the genreids as values then it will 
-#         # display the corresponding labels
-#         genreid = int(df['genreid'][0])
-#         releasedate = df['releasedate'][0]
-
-#         return [moviename, genreid, releasedate]
-
-#     else:
-#         raise PreventUpdate
+    

@@ -13,13 +13,12 @@ def add_user():
     # If the SQL has no placeholders, use an empty list (i.e. [])
 
     # Modify to add user account and passwords
-    db.modifydatabase(sqlcode, ['240517', 'Password01', 'manager', False])
-    db.modifydatabase(sqlcode, ['240518', 'Password02', 'pj_ic', False])
-    db.modifydatabase(sqlcode, ['240519', 'Password03', 'pj_ic', False])
-    db.modifydatabase(sqlcode, ['240520', 'Password04', 'pj_ic', False])
+    db.modifydatabase(sqlcode, ['240517', 'fcba8051ec9c89dfa788d2e093b54765629bc153237a2a4d26c0ae959500b4c5', 'manager', False]) # Password01
+    db.modifydatabase(sqlcode, ['240518', '246a023c642223fd23de36646b8af24e26573010b4ca0b1c6e2c44630a744440', 'pj_ic', False]) # Password02
+    db.modifydatabase(sqlcode, ['240519', 'af43e7c0b34ff2b49bb5f83fccd4405b3e3d1e376714fd97fac60d3ff603d079', 'pj_ic', False]) # Pasword03
+    db.modifydatabase(sqlcode, ['240520', '574a14bdbb39813e68cf9de4fc163586cc6491bf34d9ceac7e89378af66c496c', 'pj_ic', False]) # Password04
 
     print('done!')
-
 
 sql_query = """ SELECT * FROM users"""
 values = []

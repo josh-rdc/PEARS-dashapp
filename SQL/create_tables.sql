@@ -16,9 +16,11 @@ CREATE TABLE UserProjectBudget (
 
 CREATE TABLE ProjectExpense (
     userID int NOT NULL,
-    projectID int NOT NULL,
-    expenseID int NOT NULL,
-    PRIMARY KEY (projectID, expenseID)
+    expenseID varchar(128),
+    expenseyear int NOT NULL, 
+    expensemonth int NOT NULL, 
+    -- PRIMARY KEY (projectID, expenseID)
+    modifydate timestamp without time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE Expense (

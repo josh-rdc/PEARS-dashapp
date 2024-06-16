@@ -1,253 +1,223 @@
-# Dash related dependencies
-from dash import dcc
-from dash import html
+import hashlib
 import dash_bootstrap_components as dbc
-import dash
+from dash import dcc, html, callback_context
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-
-import hashlib
 
 from app import app
 from apps import dbconnect as db
 
 layout = html.Div(
     style={
-        'background': '#2E5C43',
         'display': 'flex',
-        'flex-direction': 'column',
-        'justify-content': 'center',
-        'align-items': 'center',
+        'flex-direction': 'row',
         'height': '100vh',
-        'color': 'white',
-        'font-family': 'Arial, sans-serif',
+        'font-family': 'sans-serif',
         'padding': '1em',
-        'border': 'none', 
+        'border': 'none',
     },
     children=[
-        html.H1("PEARS", className="app-title", style={'margin-bottom': '1.2em', 'font-family': 'Aptos Display'}),
-        html.H5("Project Expense, Analysis and Reporting System", className="app-slogan", style={'font-size': '0.8rem', 'margin-bottom': '2.5em', 'color': 'white', 'font-family': 'Aptos Display'}),
+        # Left side - App Icon and Name
         html.Div(
+            style={
+                'background': '#003300',
+                'padding': '2em 2em',
+                'color': 'white',
+                'flex': '0 0 50%',  # Occupy half of the screen
+                'display': 'flex',
+                'flex-direction': 'column',
+                'justify-content': 'center',
+                'align-items': 'center',
+                'border-radius': '25px 25px 25px 25px',  # Rounded edges
+            },
+            children=[
+                html.Img(src="/assets/PEARSlogo.png", alt="App Icon", 
+                         style={'width': '300px', 'height': '300px'}),
+                html.H1("PEARS", 
+                        style={'margin': '0', 'font-size': '7em', 'color':'#CDCDCD',
+                               'font-family': 'Arial Black, sans-serif'}),
+                html.H5("Project Expense, Analysis", 
+                        style={'margin': '0', 'color':'#CDCDCD', 'font-size': '2.5em',
+                               'font-family': 'Arial, sans-serif'}),
+                html.H5("and Reporting System", 
+                        style={'margin': '0', 'color':'#CDCDCD', 'font-size': '2.5em',
+                               'font-family': 'Arial, sans-serif'}),
+            ]
+        ),
+        # Right side - Login Form
+        html.Div(
+            style={
+                'flex': '1',  # Occupy remaining space
+                'padding': '6em 8em',  # Padding around the form
+                'text-align': 'center',  # Center align children horizontally
+                'display': 'flex',  # Use flexbox for vertical centering
+                'flex-direction': 'column',  # Stack items vertically
+                'justify-content': 'center',  # Center items vertically
+                'align-items': 'center',  # Center items horizontally
+                'height': '100vh'  # Ensure the form fills the full height
+            },
+            children=[
+                html.Img(src="/assets/LoginLogo.png", alt="Other Logo", 
+                         style={'width': '100px', 'height': '100px', 'margin-bottom': '1.5em'}),
+                html.Br(),
+                dbc.Input(id='login_userid', type='text', placeholder='Enter user ID', maxLength=6, 
+                        style={'border': 'none', 'border-bottom': '2px solid #262626', 
+                               'background': 'transparent', 'padding': '0.6em',
+                               'font-size': '1.8em'}),
+                dbc.Input(id='login_password', type='password', placeholder='Enter password', maxLength=30, 
+                        style={'border': 'none', 'border-bottom': '2px solid #262626', 
+                               'background': 'transparent', 'padding': '0.6em', 'margin-bottom': '1.5em',
+                               'font-size': '1.8em'}),
+                html.Br(),
+                dbc.Button("LOGIN", id="log_inbutton", color='primary', className='me-1', n_clicks=0, 
+                        style={'background-color': '#262626', 'color': 'white', 'padding': '0.8em 4.0em', 'border-radius': '15px'}),
+            ]
+        ),
+        # Modal Alerts
+        dbc.Modal(
             [
-                dbc.Card(
-                    [
-                        dbc.CardHeader(
-                            [
-                                html.H3("Log In", className="card-title", style={'font-weight': 'bold', 'color': 'black', 'font-family': 'Source Sans Pro'}),
-
-                            ],
-                            className="card-header"
-                        ),
-
-                        dbc.CardBody(
-                            [
-                                dbc.Row(
-                                    dbc.Col(
-                                        dbc.FormFloating(
-                                            [
-                                                dbc.Input(id='username_input', type='text', placeholder='myuseracc', maxLength=30),
-                                                dbc.Label("Username"),
-                                                dbc.FormFeedback("Invalid input.", type="invalid")
-                                            ],
-                                            style={'color': 'black'}
-                                        ),
-                                        width=10,
-                                    )
-                                ),
-
-                                dbc.Row(
-                                    dbc.Col(
-                                        dbc.FormFloating(
-                                            [
-                                                dbc.Input(id='pwd_input', type='password', placeholder='mypassword', maxLength=30),
-                                                dbc.Label("Password"),
-                                                dbc.FormFeedback("Invalid input.", type="invalid"),
-                                            ],
-                                            style={'color': 'black'}
-                                        ),
-                                        width=10,
-                                    )
-
-                                ),
-
-                                html.Div(
-                                    [
-                                        dbc.Button("Log In", id="login_button", color='primary', className='me-1', n_clicks=0),
-                                    ],
-                                    style={'margin-top': '1rem'}
-                                ),
-
-                            ],
-                            className='card-body',
-                            style={'padding': '2rem'}
-                        )
-                    ],
-                    className='card mb-3',
-                    style={'width': '400px', 'max-width': '90%'}
+                dbc.ModalHeader(dbc.ModalTitle("Login Error")),
+                dbc.ModalBody("User ID or password is incorrect."),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="login_alert_close", n_clicks=0),
                 ),
             ],
-            style={'text-align': 'center'}
+            backdrop='static',
+            id="login_alert",
+            centered=True,
+            # is_open=False,
         ),
-        # html.Div("Project Expense, Analysis and Reporting System", style={'font-size': '0.6rem', 'text-align': 'left', 'margin-top': '1em'}),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Input Error")),
+                dbc.ModalBody("User ID or password cannot be blank."),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="blank_alert_close", className="ms-auto", n_clicks=0),
+                ),
+            ],
+            backdrop='static',
+            id="blank_alert",
+            # is_open=False,
+            centered=True,
+        )
     ]
 )
-
 
 
 @app.callback(
-#Callback: when log in is clicked,
-#   Verify input:
-#       If username exists:
-#           If password matches:
-#               Log in success. Store user ID in "currentuserid" DCC store, and redirect to /home
-#           Else: prompt incorrect password
-#       Else: prompt user does not exist
     [
-        Output('login_modal', 'is_open'),
-        Output('login_modal_header', 'children'),
-        Output('login_modal_content', 'children'),
-
+        Output('login_alert', 'is_open'),
+        Output('blank_alert', 'is_open'),
         Output('currentuserid', 'data'),
-        Output('login-url', 'pathname'),
-
-        #Mark inputs as invalid
-        Output('username_input', 'invalid'),
-        Output('pwd_input', 'invalid')
+        Output('currentrole', 'data'),
+        Output('url', 'pathname')
     ],
     [
-        Input('login_button', 'n_clicks'),
-        # Input('signup_button', 'n_clicks'),
-        Input('sessionlogout', 'modified_timestamp'),
-        Input('login_modal_close', 'n_clicks'),
-
-        Input('currentuserid', 'modified_timestamp'),
+        Input('log_inbutton', 'n_clicks'),  # begin login query via button click
+        Input('sessionlogout', 'modified_timestamp'),  # reset session userid to -1 if logged out
+        Input('login_alert_close', 'n_clicks'),  # Close button for login alert
+        Input('blank_alert_close', 'n_clicks'),  # Close button for blank alert
     ],
     [
-        State('username_input','value'),
-        State('pwd_input','value'),
-        State('sessionlogout','data'),
+        State('login_userid', 'value'),
+        State('login_password', 'value'),
+        State('sessionlogout', 'data'),
         State('currentuserid', 'data'),
-        State('login-url','pathname'),
-
-        State('currentuserid', 'modified_timestamp')
-    ]
+        State('currentrole', 'data'),
+        State('url', 'pathname'),
+        
+    ],
+    prevent_initial_call=True
 )
-def verify_login_signup(login_btn, sessionlogout_time, modalclose_btn, logintime,
-                        username, pwd, sessionlogout, currentuserid, pathname, current_timestamp):
-    ctx = dash.callback_context
+
+def loginprocess(loginbtn, sessionlogout_time, login_alert_close, blank_alert_close,
+                 userid, password, sessionlogout, currentuserid, currentrole, pathname):
+    
+    ctx = callback_context
+    
     if ctx.triggered:
+        # open_login_alert = False
+        # open_blank_alert = False
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        #print("verify login signup triggered")
-        #print("ctx.triggered: ", ctx.triggered)
+    
+    # url = pathname  # Default to current pathname
 
-        # Check if inputs are empty
-        if eventid in ["login_button"] and (login_btn):
-            if not username and not pwd:
-                return [False, None, None, -1, None, True, True]
-            if not username:
-                return [False, None, None, -1, None, True, False]
-            if not pwd:
-                return [False, None, None, -1, None, False, True]
+        if eventid == 'log_inbutton' and loginbtn:  # trigger for login process
+
+            if not userid or not password:
+                open_blank_alert = True
+                open_login_alert = False
+
+                return [open_login_alert, open_blank_alert, -1, -1, '/']
         
-        # Route login
-        if ctx.triggered[0]['prop_id'] == 'currentuserid.modified_timestamp' and current_timestamp != logintime:
-            print("Route Log In")
-            if currentuserid > 0:
-                url_redirect = '/home'
-            else:
-                url_redirect = '/'
-            return [False, None, None, currentuserid, url_redirect, False, False]
-
-        elif eventid == 'login_button' and login_btn: # when the login button is clicked
-            sql = '''
-                SELECT username FROM users
-                WHERE username = %s AND user_delete_ind = False
-            '''
-
-            values = [username]
-            col = ['username']
-            df = db.querydatafromdatabase(sql, values, col)
-
-            if df.empty: # username does not exist
-                modal_open = True
-                modal_header = "Log In Error"
-                modal_content = "User does not exist."
-                return [modal_open, modal_header, modal_content, -1, None, False, False]
-
-            # Username exists, check password
-            sql = '''
-                SELECT user_id, password FROM users
-                WHERE username = %s AND user_delete_ind = False
-            '''
-            values = [username]
-            col = ['user_id','password']
-            df = db.querydatafromdatabase(sql, values, col)
-
-            if df.empty: # something went wrong with the database query
-                modal_open = True
-                modal_header = "Log In Error"
-                modal_content = "An error occurred while retrieving user data."
-                currentuserid = -1
-                return [modal_open, modal_header, modal_content, -1, None, False, False]
-
-            stored_password = df['password'][0]
-            encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
-
-            if encrypt_string(pwd) != stored_password: # incorrect password
-                modal_open = True
-                modal_header = "Log In Error"
-                modal_content = "Incorrect password."
-                currentuserid = -1
-                return [modal_open, modal_header, modal_content, -1, None, False, False]
-
-            # Password matches. Log In successful!
-            currentuserid = df['user_id'][0]  # store user ID in DCC store
-            redirect_path = "/home" # redirect to "/home"
-
-            return [False, None, None, currentuserid, redirect_path, False, False]
-
-        # elif eventid == 'signup_button' and signup_btn: # when the signup button is clicked
-        #     sql = '''
-        #         SELECT username FROM users
-        #         WHERE username = %s AND user_delete_ind = False
-        #     '''
-
-        #     values = [username]
-        #     col = ['username']
-        #     df = db.querydatafromdatabase(sql, values, col)
-
-        #     if not df.empty: # username already exists
-        #         modal_open = True
-        #         modal_header = "Sign Up Error"
-        #         modal_content = "Username is already taken. Please enter a new one."
-        #     else:
-        #         sql = '''
-        #                 INSERT INTO users (username, password)
-        #                 VALUES (%s, %s)
-        #             '''
+            if loginbtn and userid and password:
+                sql = """SELECT userID, user_type
+                        FROM Users
+                        WHERE 
+                            userID = %s AND
+                            password = %s AND
+                            NOT user_del_ind"""
                 
-        #         encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest() 
-        #         values = [username, encrypt_string(pwd)]
+                # we match the encrypted input to the encrypted password in the db
+                encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
+                # print("encrypt_string", encrypt_string)
+                # print("encrypt_string(password)" , encrypt_string(password))
+                
+                values = [userid, encrypt_string(password)]
+                # values = [userid, password]  # using plain text password
+                
+                cols = ['userID', 'user_type']
+                df = db.querydatafromdatabase(sql, values, cols)
+                
+                if df.shape[0]:  # if query returns rows
+                    currentuserid = df['userID'][0]
+                    currentrole = df['user_type'][0]
+                    url = '/home'  # redirect to home page on successful login
+                    open_blank_alert = True
+                    open_login_alert = False
+                
+                    return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
 
-        #         db.modifydatabase(sql, values)
+                else:
+                    currentuserid = -1
+                    currentrole = -1
+                    open_login_alert = True
+                    open_blank_alert = False
+                    url = '/'
 
-        #         # If this is successful, we want the successmodal to show
-        #         modal_open = True
-        #         modal_header = "Sign up Success!"
-        #         modal_content = "Your account details have been saved. You may now log-in using your username and password."
-            
-        #     return [modal_open, modal_header, modal_content, -1, None, False, False]
-        
-        elif eventid == 'login_modal_close' and modalclose_btn: # when the modal "close" btn is clicked
-            return [False, None, None, -1, None, False, False]
-        
-        elif eventid == 'sessionlogout' and pathname == '/logout': # reset the userid if logged out
+                    return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
+                    
+        elif eventid == 'sessionlogout' and pathname == '/logout':  # reset the userid if logged out
             currentuserid = -1
-            return [False, None, None, currentuserid, None, False, False]
-            
+            currentrole = -1
+            url = '/'  # redirect to login page on logout
+            open_login_alert = False
+            open_blank_alert = False
+
+            return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
+        
+        elif eventid == 'login_alert_close':
+            open_login_alert = False
+            currentuserid = -1
+            currentrole = -1
+            url = '/'  # redirect to login page on logout
+            open_login_alert = False
+
+            return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
+
+        elif eventid == 'blank_alert_close':
+            open_login_alert = False
+            currentuserid = -1
+            currentrole = -1
+            url = '/'  # redirect to login page on logout
+            open_blank_alert = False
+
+            return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
+        
         else:
-            #print("Prevented Update")
             raise PreventUpdate
+        
+        # return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]
+    
     else:
-        #print("Prevented Update")
-        raise PreventUpdate
+            raise PreventUpdate
