@@ -108,10 +108,10 @@ Only **TM accounts** can add new projects.
 
 ### Adding Project Data (Budget and Expense)
 - **General Interface**
-   1. Access the "MANAGE" tab from the navigation bar.
-   2. Select the project to manage from the project form.
-   3. TM accounts can edit data for all projects, while PIC accounts can only edit their assigned projects.
- 
+1. Access the "MANAGE" tab from the navigation bar.
+2. Select the project to manage from the project form.
+3. TM accounts can edit data for all projects, while PIC accounts can only edit their assigned projects.
+
 - **Budget Mode**
    1. Toggle to “Budget” mode.
    2. Enter budget data directly into the table or upload a CSV file.
