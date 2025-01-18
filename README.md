@@ -5,16 +5,17 @@
 **Project Expense, Analysis and Reporting System (PEARS)** is a web-based financial management application for small-scale projects and companies. Developed using Python integrated with PostgreSQL, the app enables efficient project cost control by creating a centralized database for multiple projects, allowing users to formulate budgets, track monthly expenses, and ensure financial transparency.
 
 <details close>
-<summary>Installing Locally</summary>
+<summary>Open for installation guide</summary>
 
+## Installing Locally
 To run this project locally, please follow these steps:
 
-### Clone the repository:
+### A. Clone the repository:
    ```
    git clone https://github.com/josh-rdc/PEARS-dashapp
    ```
 
-### Database Setup 
+### B. Setup the database  
 1. Ensure **PostgreSQL is installed on your machine**. Follow this [PostgreSQL Tutorial Page](https://neon.tech/postgresql/postgresql-getting-started/install-postgresql).
 
    Check if the app is installed and added to your environment variables properly by checking its version in the terminal:
@@ -62,7 +63,7 @@ To run this project locally, please follow these steps:
    )
    ```
 
-### App Setup
+### C. Setup the app
 1. Install the required libraries:
    ```
    pip install -r requirements.txt
