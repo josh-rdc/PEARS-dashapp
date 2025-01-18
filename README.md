@@ -7,6 +7,15 @@
 ## Installing Locally
 To run this project locally, please follow these steps:
 
+### Database Setup 
+1. Ensure PostgreSQL is installed on your machine. You can download it from official [PostgreSQL download page](https://www.postgresql.org/download/).
+
+2. Open a terminal and log in to your PostgreSQL server:
+   ```
+   psql -U postgres
+   ```
+
+### 
 1. Clone the repository:
 
    ```
