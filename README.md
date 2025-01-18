@@ -80,13 +80,17 @@ To run this project locally, please follow these steps:
 ---
 
 ### Home Page
+
 Defines the pages, their contents and how to use the features.
+
 --- 
 
 ### Overview Page
+
 - **Project Profile** displays project name, contract amount, total budgeted amount, scope, location, client, start and end date.
 
 - **Commercial Management Overview**
+
    1. **Target Profit**: Shows the difference between the total contract amount and the budgeted amount, providing an estimate of the project’s profit margin.
    2. **Remaining Budget**: Indicates the total budgeted amount minus the current total running expenses, helping forecast the final profit.
    3. **Main Items**: Lists the top five items with the highest allotted budget and their current running total expenses for effective monitoring.
@@ -96,6 +100,7 @@ Defines the pages, their contents and how to use the features.
 --- 
 
 ### Adding A Project
+
 Only `TM accounts` can add new projects.
 1.	Click the “ADD” button to open the project creation interface.
 2.	Fill in the basic project details: project name, contract amount, scope, location, client name, and schedule.
@@ -105,6 +110,7 @@ Only `TM accounts` can add new projects.
 --- 
 
 ### Adding Project Data (Budget and Expense)
+
 - **General Interface**
 1. Access the "MANAGE" tab from the navigation bar.
 2. Select the project to manage from the project form.
