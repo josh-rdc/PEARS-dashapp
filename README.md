@@ -88,7 +88,19 @@ To run this project locally, please follow these steps:
 ### Log-in and Home Page
 ![Assets/Attachment1.gif](Assets/Attachment1.gif)
 
-Defines the pages, their contents and how to use the features.
+- Each user has an individual account to log in to the application.
+- User credentials (user ID and password) are created and managed by the application admin to control access.
+- User roles are divided into two:
+   1. Top Management **(TM)** which has access to all projects and could add new projects.
+   2. Project-In-Charge **(PIC)** which has only access to specific projects assigned to them.
+
+   Sample `users` table as shown:
+   ![Assets/users.png](Assets/users.png)
+
+- After logging in, users are directed to the homepage which includes:
+  - Details about the report generation process.
+  - Descriptions of the application's features and how to use them.
+  - Definitions of available pages and their contents.
 
 --- 
 
