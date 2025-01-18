@@ -4,7 +4,7 @@ from dash import dcc, html, callback_context
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from app import app
+from app_log import app
 from apps import dbconnect as db
 
 layout = html.Div(
@@ -145,7 +145,7 @@ def loginprocess(loginbtn, sessionlogout_time, login_alert_close, blank_alert_cl
         if eventid == 'log_inbutton' and loginbtn:  # trigger for login process
 
             if not userid or not password:
-                open_blank_alert = True
+                open_blank_alert = False # removed blank alert
                 open_login_alert = False
 
                 return [open_login_alert, open_blank_alert, -1, -1, '/']
@@ -173,7 +173,7 @@ def loginprocess(loginbtn, sessionlogout_time, login_alert_close, blank_alert_cl
                     currentuserid = df['userID'][0]
                     currentrole = df['user_type'][0]
                     url = '/home'  # redirect to home page on successful login
-                    open_blank_alert = True
+                    open_blank_alert = False # removed blank alert
                     open_login_alert = False
                 
                     return [open_login_alert, open_blank_alert, currentuserid, currentrole, url]

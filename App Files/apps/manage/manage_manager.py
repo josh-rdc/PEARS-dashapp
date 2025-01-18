@@ -9,7 +9,7 @@ import pandas as pd
 
 # Let us import the app object in case we need to define
 # callbacks here
-from app import app
+from app_log import app
 #for DB needs
 import apps.dbconnect as db
 
