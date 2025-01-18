@@ -8,7 +8,7 @@ def getdblocation():
         database='PEARSdb',
         user='postgres',
         port=5432,
-        password='9711'
+        password='1111'
     )
     return db
 
