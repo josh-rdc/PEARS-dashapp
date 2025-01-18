@@ -1,0 +1,7 @@
+item_id,item_name,item_qty,item_unit,item_price,item_desc
+,Mobilization,1,lot,104280,"Mobilization including manpower, equipment and materials"
+,Indirect Labor,1,lot,1405561.736,Salary for staffs
+,Permit and Fees,1,lot,199511.0825,"Include bonds, local permits, insurance"
+,Safety Reruiements,1,lot,273119.0392,"Includes PPE's, Consumables, Services"
+,Temporary Facilities,1,lot,2062346.85,"Includes Staffhouse, Furnitures, Appliances, Barracks, Utilities"
+,Other Cost,1,lot,100000,"Includes Contingencies, Corporate Social Responsibility, Drawings"
