@@ -4,7 +4,9 @@
 
 **Project Expense, Analysis and Reporting System (PEARS)** is a web-based financial management application for small-scale projects and companies. Developed using Python integrated with PostgreSQL, the app enables efficient project cost control by creating a centralized database for multiple projects, allowing users to formulate budgets, track monthly expenses, and ensure financial transparency.
 
-## Installing Locally
+<details close>
+<summary>Installing Locally</summary>
+
 To run this project locally, please follow these steps:
 
 ### Clone the repository:
@@ -72,15 +74,18 @@ To run this project locally, please follow these steps:
    python app.py
    ```
 
+</details>
+
 ## App Pages
-- [Home Page](#home-page)
+- [Log-in and Home Page](#log-in-and-home-page)
 - [Overview Page](#overview-page)
 - [Adding A Project](#adding-a-project)
 - [Adding Project Data](#adding-project-data-budget-and-expense)
 
 ---
 
-### Home Page
+### Log-in and Home Page
+![Assets/Attachment1.gif](Assets/Attachment1.gif)
 
 Defines the pages, their contents and how to use the features.
 
