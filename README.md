@@ -13,8 +13,7 @@ To run this project locally, please follow these steps:
    ```
 
 ### Database Setup 
-1. **PostgreSQL**
-   Ensure PostgreSQL is installed on your machine. Follow this [PostgreSQL Tutorial Page](https://neon.tech/postgresql/postgresql-getting-started/install-postgresql).
+1. Ensure **PostgreSQL is installed on your machine**. Follow this [PostgreSQL Tutorial Page](https://neon.tech/postgresql/postgresql-getting-started/install-postgresql).
 
    Check if the app is installed and added to your environment variables properly by checking its version in the terminal:
    ```
@@ -22,6 +21,7 @@ To run this project locally, please follow these steps:
    ```
 
 2. **Create the Database**
+
    To create the database, log in to your PostgreSQL server:
    ```
    psql -U postgres
@@ -38,6 +38,7 @@ To run this project locally, please follow these steps:
    ```
 
 3. **Build the Schema tables**
+
    Navigate to the `App Files` folder from the cloned repository:
    ``
    cd "C:\Users\Josh\000 Files\010 Portfolio\04 PEARS-dashapp\App Files"
