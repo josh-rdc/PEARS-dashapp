@@ -40,14 +40,14 @@ To run this project locally, please follow these steps:
 3. **Build the Schema tables**
 
    Navigate to the `App Files` folder from the cloned repository:
-   ``
+   ```
    cd "C:\Users\Josh\000 Files\010 Portfolio\04 PEARS-dashapp\App Files"
-   ``
+   ```
 
    Run the following terminal command to create the required tables from the `create_tables.sql` file:
-   ``
+   ```
    psql -U postgres -d PEARSdb -f create_tables.sql
-   ``
+   ```
 
 4. Update the `apps/dbconnect.py` file with your PostgreSQL connection details:
    ```
