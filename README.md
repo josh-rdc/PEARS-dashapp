@@ -16,9 +16,9 @@ To run this project locally, please follow these steps:
    ```
 
 ### B. Setup the database  
-1. Ensure **PostgreSQL is installed on your machine**. Follow this [PostgreSQL Tutorial Page](https://neon.tech/postgresql/postgresql-getting-started/install-postgresql).
+1. Ensure **PostgreSQL is installed on your machine**. Follow this [PostgreSQL Tutorial Page](https://neon.tech/postgresql/postgresql-getting-started/install-postgresql) if not.
 
-   Check if the app is installed and added to your environment variables properly by checking its version in the terminal:
+   To check if the app is installed and added to your environment variables properly, run the version inquiry in the terminal:
    ```
    psql --version
    ```
