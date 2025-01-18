@@ -1,6 +1,6 @@
 # PEARS Dashapp
 
-![Assets/login.png](Assets/login.png)
+<!-- ![Assets/login.png](Assets/login.png) -->
 
 **Project Expense, Analysis and Reporting System (PEARS)** is a web-based financial management application for small-scale projects and companies. Developed using Python integrated with PostgreSQL, the app enables efficient project cost control by creating a centralized database for multiple projects, allowing users to formulate budgets, track monthly expenses, and ensure financial transparency.
 
