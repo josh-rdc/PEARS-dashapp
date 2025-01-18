@@ -94,7 +94,7 @@ To run this project locally, please follow these steps:
    1. Top Management **(TM)** which has access to all projects and could add new projects.
    2. Project-In-Charge **(PIC)** which has only access to specific projects assigned to them.
 
-   Sample `users` table as shown:
+   Sample `users` table:
    ![Assets/users.png](Assets/users.png)
 
 - After logging in, users are directed to the homepage which includes:
@@ -105,6 +105,7 @@ To run this project locally, please follow these steps:
 --- 
 
 ### Overview Page
+![Assets/Attachment4.gif](Assets/Attachment4.gif)
 
 - **Project Profile** displays project name, contract amount, total budgeted amount, scope, location, client, start and end date.
 
